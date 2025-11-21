@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
 import mysql.connector
 from tkcalendar import DateEntry
-import csv
+import openpyxl
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -181,18 +183,43 @@ def TimKiem():
 def XuatExcel():
     conn = connect_db()
     try:
-        file_path = filedialog.asksaveasfilename(defaultextension=".csv",
-                                                    filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-                                                    title="Lưu file danh sách giáo viên")
+        # 1. Đổi đuôi file thành .xlsx
+        file_path = filedialog.asksaveasfilename(defaultextension=".xlsx",
+                                                 filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+                                                 title="Lưu file Excel")
         if file_path:
             cur = conn.cursor()
             cur.execute("SELECT * FROM giaovien")
             rows = cur.fetchall()
-            with open(file_path, mode='w', newline='', encoding='utf-8-sig') as file:
-                writer = csv.writer(file)
-                writer.writerow(["Mã GV", "Họ Lót", "Tên", "Giới Tính", "Ngày Sinh", "Môn Dạy"])
-                writer.writerows(rows)
-            messagebox.showinfo("Thành công", f"Đã xuất file tại: {file_path}")
+            
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Danh Sách Giáo Viên"
+            
+            headers = ["Mã GV", "Họ Lót", "Tên", "Giới Tính", "Ngày Sinh", "Môn Dạy"]
+            ws.append(headers)
+            
+            header_font = Font(bold=True, color="FFFFFF")
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num)
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+                cell.fill = openpyxl.styles.PatternFill(start_color="2c3e50", end_color="2c3e50", fill_type="solid")
+
+            thin_border = Border(left=Side(style='thin'), right=Side(style='thin'), 
+                                 top=Side(style='thin'), bottom=Side(style='thin'))
+            
+            for row in rows:
+                ws.append(row)
+                for cell in ws[ws.max_row]:
+                    cell.border = thin_border
+            for column_cells in ws.columns:
+                length = max(len(str(cell.value)) for cell in column_cells)
+                ws.column_dimensions[column_cells[0].column_letter].width = length + 5
+            wb.save(file_path)
+            messagebox.showinfo("Thành công", f"Đã xuất file Excel tại:\n{file_path}")
+            
     except Exception as e:
         messagebox.showerror("Lỗi", str(e))
     finally:
