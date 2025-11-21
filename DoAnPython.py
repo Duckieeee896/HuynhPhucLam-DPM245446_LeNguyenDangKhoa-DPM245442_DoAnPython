@@ -1,8 +1,12 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
+from tkinter import messagebox, ttk, filedialog
 import mysql.connector
 from tkcalendar import DateEntry
+import csv
+import warnings
+
+warnings.filterwarnings("ignore")
+
 
 def connect_db():
     return mysql.connector.connect(
@@ -11,7 +15,7 @@ def connect_db():
         password="Lam10042006@",
         database="qlgiaovien"
     )
-def center_window(win, w=700, h=550):
+def center_window(win, w=950, h=550):
     ws = win.winfo_screenwidth()
     hs = win.winfo_screenheight()
     x = (ws // 2) - (w // 2)
@@ -138,6 +142,62 @@ def LuuGiaoVien():
     finally:
         conn.close()
 
+def TimKiem():
+    search_win = tk.Toplevel(root)
+    search_win.title("Tìm kiếm giáo viên")
+    search_win.geometry("300x120")
+
+    tk.Label(search_win, text="Nhập mã hoặc tên giáo viên:").pack(pady=10)
+    entry_search = tk.Entry(search_win, width=30)
+    entry_search.pack(pady=5)
+    def ThucHienTim():
+        keyword = entry_search.get()
+        if keyword == "":
+            messagebox.showwarning("Thông báo", "Vui lòng nhập từ khóa!")
+            return
+        for i in tree.get_children():
+            tree.delete(i)
+        conn = connect_db()
+        try:
+            cur = conn.cursor()
+            sql = "SELECT * FROM giaovien WHERE ma_gv LIKE %s OR ten LIKE %s OR ho_lot LIKE %s"
+            val = (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%")
+            cur.execute(sql, val)
+            rows = cur.fetchall()
+            if len(rows) == 0:
+                messagebox.showinfo("Kết quả", "Không tìm thấy giáo viên nào.")
+                load_data()
+            else:
+                for row in rows:
+                    tree.insert("", tk.END, values=row)
+            search_win.destroy()
+        except Exception as e:
+            messagebox.showerror("Lỗi", str(e))
+        finally:
+            conn.close()
+
+    tk.Button(search_win, text="Tìm kiếm", command=ThucHienTim).pack(pady=10)
+
+def XuatExcel():
+    conn = connect_db()
+    try:
+        file_path = filedialog.asksaveasfilename(defaultextension=".csv",
+                                                    filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+                                                    title="Lưu file danh sách giáo viên")
+        if file_path:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM giaovien")
+            rows = cur.fetchall()
+            with open(file_path, mode='w', newline='', encoding='utf-8-sig') as file:
+                writer = csv.writer(file)
+                writer.writerow(["Mã GV", "Họ Lót", "Tên", "Giới Tính", "Ngày Sinh", "Môn Dạy"])
+                writer.writerows(rows)
+            messagebox.showinfo("Thành công", f"Đã xuất file tại: {file_path}")
+    except Exception as e:
+        messagebox.showerror("Lỗi", str(e))
+    finally:
+        conn.close()
+        
 root = tk.Tk()
 root.title("Quản lý giáo viên phổ thông")
 center_window(root, 750, 550)
@@ -189,7 +249,10 @@ tk.Button(frame_btn, text="Lưu", width=btn_width, command=LuuGiaoVien, bg="#349
 tk.Button(frame_btn, text="Sửa", width=btn_width, command=SuaGiaoVien, bg="#f1c40f").grid(row=0, column=2, padx=5)
 tk.Button(frame_btn, text="Hủy", width=btn_width, command=clear_input).grid(row=0, column=3, padx=5)
 tk.Button(frame_btn, text="Xóa", width=btn_width, command=XoaGiaoVien, bg="#e74c3c", fg="white").grid(row=0, column=4, padx=5)
-tk.Button(frame_btn, text="Thoát", width=btn_width, command=root.quit).grid(row=0, column=5, padx=5)
+tk.Button(frame_btn, text="Tìm Kiếm", width=btn_width, command=TimKiem, bg="#9b59b6", fg="white").grid(row=0, column=6, padx=5)
+tk.Button(frame_btn, text="Xem Tất Cả", width=btn_width, command=load_data, bg="#95a5a6", fg="white").grid(row=0, column=7, padx=5)
+tk.Button(frame_btn, text="Xuất Excel", width=btn_width, command=XuatExcel, bg="#1abc9c", fg="white").grid(row=0, column=8, padx=5)
+tk.Button(frame_btn, text="Thoát", width=btn_width, command=root.quit).grid(row=0, column=9, padx=5)
 
 tk.Label(root, text="Danh sách giáo viên", font=("Arial", 10, "bold")).pack(pady=5, anchor="w", padx=20)
 
