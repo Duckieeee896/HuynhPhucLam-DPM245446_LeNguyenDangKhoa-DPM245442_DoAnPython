@@ -14,7 +14,7 @@ def connect_db():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="Lam10042006@",
+        password="",
         database="qlgiaovien"
     )
 def center_window(win, w=950, h=550):
