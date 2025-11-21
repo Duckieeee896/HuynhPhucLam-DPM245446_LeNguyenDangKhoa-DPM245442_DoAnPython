@@ -9,7 +9,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-
+# Tất cả các thư viện liên quan cần cài để chạy được chương trình một cách mượt mà đã được nén trong file Setup.exe
 def connect_db():
     return mysql.connector.connect(
         host="localhost",
@@ -307,3 +307,6 @@ tree.bind("<Double-1>", SuaGiaoVien)
 load_data()
 clear_input()
 root.mainloop()
+
+
+# Chúng em xin cảm ơn thầy đã chấm bài của chúng em! Chúc thầy sức khỏe và thành công!
