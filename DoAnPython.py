@@ -186,7 +186,6 @@ def TimKiem():
 def XuatExcel():
     conn = connect_db()
     try:
-        # 1. Đổi đuôi file thành .xlsx
         file_path = filedialog.asksaveasfilename(defaultextension=".xlsx",
                                                  filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
                                                  title="Lưu file Excel")
@@ -310,6 +309,3 @@ tree.bind("<Double-1>", SuaGiaoVien)
 load_data()
 clear_input()
 root.mainloop()
-
-
-# Chúng em xin cảm ơn thầy đã chấm bài của chúng em! Chúc thầy sức khỏe và thành công!
