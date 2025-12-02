@@ -53,7 +53,7 @@ def ThemGiaoVien():
     ma = entry_ma.get()
     holot = entry_holot.get()
     ten = entry_ten.get()
-    gioitinh = gender_var.get()
+    phai = gender_var.get()
     ngaysinh = date_entry.get_date()
     monday = cbb_mon.get()
 
@@ -64,7 +64,7 @@ def ThemGiaoVien():
     try:
         cur = conn.cursor()
         cur.execute("INSERT INTO giaovien VALUES (%s, %s, %s, %s, %s, %s)",
-        (ma, holot, ten, gioitinh, ngaysinh, monday))
+        (ma, holot, ten, phai, ngaysinh, monday))
         conn.commit()
         messagebox.showinfo("Thành công", "Thêm giáo viên thành công")
         load_data()
@@ -121,7 +121,7 @@ def LuuGiaoVien():
     ma = entry_ma.get()
     holot = entry_holot.get()
     ten = entry_ten.get()
-    gioitinh = gender_var.get()
+    phai = gender_var.get()
     ngaysinh = date_entry.get_date()
     monday = cbb_mon.get()
 
@@ -132,9 +132,9 @@ def LuuGiaoVien():
     try:
         cur = conn.cursor()
         sql = """UPDATE giaovien
-                 SET ho_lot = %s, ten = %s, gioitinh = %s, ngay_sinh = %s, mon_day = %s
+                 SET ho_lot = %s, ten = %s, phai = %s, ngay_sinh = %s, mon_day = %s
                  WHERE ma_gv = %s"""
-        val = (holot, ten, gioitinh, ngaysinh, monday, ma)
+        val = (holot, ten, phai, ngaysinh, monday, ma)
         cur.execute(sql, val)
         conn.commit()
         messagebox.showinfo("Thành công", "Cập nhật thông tin giáo viên thành công")
@@ -286,20 +286,20 @@ tk.Button(frame_btn, text="Thoát", width=btn_width, command=root.quit).grid(row
 tk.Label(root, text="Danh sách giáo viên", font=("Arial", 10, "bold")).pack(pady=5, anchor="w", padx=20)
 
 # Bảng hiển thị dữ liệu giáo viên
-columns = ("ma_gv", "holot", "ten", "gioitinh", "ngaysinh", "monday")
+columns = ("ma_gv", "holot", "ten", "phai", "ngaysinh", "monday")
 tree = ttk.Treeview(root, columns=columns, show="headings", height=10)
 
 tree.heading("ma_gv", text="Mã GV")
 tree.heading("holot", text="Họ lót")
 tree.heading("ten", text="Tên")
-tree.heading("gioitinh", text="Giới tính")
+tree.heading("phai", text="Giới tính")
 tree.heading("ngaysinh", text="Ngày sinh")
 tree.heading("monday", text="Môn dạy")
 
 tree.column("ma_gv", width=80, anchor="center")
 tree.column("holot", width=150)
 tree.column("ten", width=80)
-tree.column("gioitinh", width=60, anchor="center")
+tree.column("phai", width=60, anchor="center")
 tree.column("ngaysinh", width=100, anchor="center")
 tree.column("monday", width=120)
 
