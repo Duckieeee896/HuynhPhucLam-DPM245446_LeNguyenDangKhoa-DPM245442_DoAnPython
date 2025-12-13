@@ -70,7 +70,6 @@ def ThemGiaoVien():
     conn = connect_db()
     try:
         cur = conn.cursor()
-        # Cập nhật câu lệnh INSERT với 7 tham số
         sql = "INSERT INTO giaovien (ma_gv, ho_lot, ten, phai, ngay_sinh, mon_day, tobomon) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         val = (ma, holot, ten, phai, ngaysinh, monday, tobomon)
         cur.execute(sql, val)
@@ -119,7 +118,7 @@ def SuaGiaoVien(event=None):
     entry_ma.config(state='normal')
     entry_ma.delete(0, tk.END)
     entry_ma.insert(0, values[0])
-    entry_ma.config(state='readonly') # Không cho sửa mã
+    entry_ma.config(state='readonly')
 
     entry_holot.delete(0, tk.END)
     entry_holot.insert(0, values[1])
@@ -130,8 +129,6 @@ def SuaGiaoVien(event=None):
     gender_var.set(values[3])
     date_entry.set_date(values[4])
     cbb_mon.set(values[5])
-    
-    # Load dữ liệu tổ bộ môn vào ô nhập (Cột thứ 7 - index 6)
     cbb_tobomon.delete(0, tk.END)
     if len(values) > 6:
         cbb_tobomon.insert(0, values[6])
@@ -151,7 +148,6 @@ def LuuGiaoVien():
     conn = connect_db()
     try:
         cur = conn.cursor()
-        # Cập nhật câu lệnh UPDATE thêm tobomon
         sql = """UPDATE giaovien
                  SET ho_lot = %s, ten = %s, phai = %s, ngay_sinh = %s, mon_day = %s, tobomon = %s
                  WHERE ma_gv = %s"""
@@ -188,7 +184,6 @@ def TimKiem():
         conn = connect_db()
         try:
             cur = conn.cursor()
-            # Thêm điều kiện tìm kiếm theo Tổ bộ môn
             sql = "SELECT * FROM giaovien WHERE ma_gv LIKE %s OR ten LIKE %s OR ho_lot LIKE %s OR tobomon LIKE %s"
             param = f"%{keyword}%"
             val = (param, param, param, param)
@@ -242,8 +237,6 @@ def XuatExcel():
                 ws.append(row)
                 for cell in ws[ws.max_row]:
                     cell.border = thin_border
-            
-            # Tự động chỉnh độ rộng cột
             for column_cells in ws.columns:
                 length = max(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
                 ws.column_dimensions[column_cells[0].column_letter].width = length + 5
@@ -256,7 +249,6 @@ def XuatExcel():
     finally:
         conn.close()
 
-# --- GIAO DIỆN CHÍNH ---
 root = tk.Tk()
 root.title("Quản lý giáo viên phổ thông")
 center_window(root, 800, 600)
@@ -268,7 +260,6 @@ lbl_title.pack(pady=10)
 frame_info = tk.Frame(root)
 frame_info.pack(pady=5, padx=10)
 
-# Dòng 1
 tk.Label(frame_info, text="Mã GV:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
 entry_ma = tk.Entry(frame_info, width=20)
 entry_ma.grid(row=0, column=1, padx=5, pady=5, sticky="w")
@@ -278,7 +269,6 @@ cbb_mon = ttk.Combobox(frame_info, values=["Toán", "Vật Lý", "Hóa Học", "
                        width=17, state="readonly")
 cbb_mon.grid(row=0, column=3, padx=5, pady=5, sticky="w")
 
-# Dòng 2
 tk.Label(frame_info, text="Họ lót:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
 entry_holot = tk.Entry(frame_info, width=20)
 entry_holot.grid(row=1, column=1, padx=5, pady=5, sticky="w")
@@ -287,7 +277,6 @@ tk.Label(frame_info, text="Tên:").grid(row=1, column=2, padx=5, pady=5, sticky=
 entry_ten = tk.Entry(frame_info, width=20)
 entry_ten.grid(row=1, column=3, padx=5, pady=5, sticky="w")
 
-# Dòng 3: Giới tính và Ngày sinh
 tk.Label(frame_info, text="Giới tính:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
 gender_var = tk.StringVar(value="Nam")
 frame_gender = tk.Frame(frame_info)
@@ -301,13 +290,11 @@ date_entry = DateEntry(frame_info, width=17, background="darkblue",
                        year=2000, month=1, day=1)
 date_entry.grid(row=2, column=3, padx=5, pady=5, sticky="w")
 
-# Dòng 4: Tổ bộ môn
 tk.Label(frame_info, text="Tổ bộ môn:").grid(row=3, column=0, padx=5, pady=5, sticky="w")
 cbb_tobomon = ttk.Combobox(frame_info, values=["Toán - Tin", "Ngữ Văn", "Ngoại Ngữ", "Khoa học Tự nhiên (KHTN)", "Khoa học Xã hội (KHXH)"],
                            width=17, state="readonly")
 cbb_tobomon.grid(row=3, column=1, columnspan=3, padx=5, pady=5, sticky="w")
 
-# Frame Buttons
 frame_btn = tk.Frame(root)
 frame_btn.pack(pady=15)
 
@@ -321,7 +308,6 @@ tk.Button(frame_btn, text="Tìm Kiếm", width=btn_width, command=TimKiem, bg="#
 tk.Button(frame_btn, text="Load lại", width=btn_width, command=load_data, bg="#95a5a6", fg="white").grid(row=0, column=6, padx=5)
 tk.Button(frame_btn, text="Xuất Excel", width=btn_width, command=XuatExcel, bg="#1abc9c", fg="white").grid(row=0, column=7, padx=5)
 
-# Treeview
 tk.Label(root, text="Danh sách giáo viên:", font=("Arial", 10, "bold")).pack(pady=5, anchor="w", padx=20)
 
 columns = ("ma_gv", "holot", "ten", "phai", "ngaysinh", "monday", "tobomon")
@@ -333,7 +319,7 @@ tree.heading("ten", text="Tên")
 tree.heading("phai", text="Giới tính")
 tree.heading("ngaysinh", text="Ngày sinh")
 tree.heading("monday", text="Môn dạy")
-tree.heading("tobomon", text="Tổ bộ môn") # Header mới
+tree.heading("tobomon", text="Tổ bộ môn")
 
 tree.column("ma_gv", width=70, anchor="center")
 tree.column("holot", width=130)
@@ -341,23 +327,22 @@ tree.column("ten", width=70)
 tree.column("phai", width=60, anchor="center")
 tree.column("ngaysinh", width=90, anchor="center")
 tree.column("monday", width=100)
-tree.column("tobomon", width=150) # Cột mới
+tree.column("tobomon", width=150)
 
 tree.pack(padx=20, pady=5, fill="both", expand=True)
 
-# Scrollbar cho bảng
+
 scrollbar = ttk.Scrollbar(root, orient=tk.VERTICAL, command=tree.yview)
 tree.configure(yscroll=scrollbar.set)
 scrollbar.place(relx=0.97, rely=0.6, relheight=0.3, anchor="ne")
 
 tree.bind("<Double-1>", SuaGiaoVien)
 
-# Khởi chạy
 if __name__ == "__main__":
     try:
         load_data()
     except:
-        pass # Tránh lỗi nếu chưa bật XAMPP/MySQL
+        pass
     clear_input()
     root.mainloop()
 
